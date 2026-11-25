@@ -24,7 +24,7 @@ Counts below reflect records in the supplied SQL dumps, rather than measured app
 | Stadiums | 8 |
 | Player statistics | 832 |
 
-The database contains seven tables, including the login table, and 1,802 tournament-domain records excluding login accounts.
+The database contains seven tables, including the login table, and 1,800 tournament-domain records excluding login accounts (1,802 total records).
 
 ## Features
 
@@ -84,7 +84,7 @@ erDiagram
     PLAYERS ||--o{ STATSOVERALL : records
 ```
 
-The diagram represents the conceptual relationships defined by foreign keys; nullable foreign-key columns allow optional references. The independent login table stores account information.
+The diagram represents conceptual relationships. Most are enforced by foreign keys; statsoverall.player_id is indexed but has no foreign-key constraint in the supplied dump. Nullable foreign-key columns allow optional references. The independent login table stores account information.
 
 | Table | Responsibility |
 |---|---|
