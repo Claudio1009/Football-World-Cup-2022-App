@@ -1,85 +1,255 @@
 # Football World Cup 2022 App
-[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/Claudio1009/Football-World-Cup-2022-App)
 
-This repository contains a dynamic web application built with PHP and MySQL that provides comprehensive information about the FIFA World Cup 2022. Users can view match schedules, results, group standings, knockout brackets, and player statistics. The application also includes a complete admin panel for managing players and managers.
+![PHP](https://img.shields.io/badge/PHP-Backend-777BB4?logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-Frontend-F7DF1E?logo=javascript&logoColor=black)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-UI-7952B3?logo=bootstrap&logoColor=white)
+
+## Overview
+
+A database-driven web application for exploring historical FIFA World Cup 2022 tournament data. It provides match results, group standings, knockout brackets, player statistics, search and administrative interfaces for managing players and team managers.
+
+The project demonstrates relational database design, SQL-based analytics, server-rendered PHP pages and multi-table CRUD operations. It is an educational application, not a live sports data service or an official FIFA product.
+
+## Dataset at a glance
+
+Counts below reflect records in the supplied SQL dumps, rather than measured application traffic.
+
+| Entity | Records |
+|---|---:|
+| National teams | 32 |
+| Players | 832 |
+| Matches | 64 |
+| Team managers | 32 |
+| Stadiums | 8 |
+| Player statistics | 832 |
+
+The database contains seven tables, including the login table, and 1,802 tournament-domain records excluding login accounts.
 
 ## Features
 
-### For Users
--   **Login System**: Secure login for both regular users and administrators.
--   **Match Schedules & Results**: View today's matches and browse the results of all past matches from the group and knockout stages.
--   **Group Standings**: Detailed tables for each group (A-H) showing teams, matches played, wins, draws, losses, goals for, goals against, and points.
--   **Tournament Bracket**: A full visual bracket for the knockout stages, from the Round of 16 to the Final.
--   **Player Statistics**: View leaderboards for top goal scorers, assists, cards (yellow/red), and goalkeeper saves.
--   **Search Functionality**: A search bar to quickly find information about any player or team in the tournament.
--   **Fun Facts**: A dedicated page with interesting statistics, such as the most aggressive team and the top 3 goal scorers.
+### Tournament exploration
 
-### For Admins
--   **Admin Dashboard**: A central panel for managing the application's data.
--   **Manager Management (CRUD)**: Full Create, Read, Update, and Delete capabilities for team managers.
--   **Player Management (CRUD)**: Full Create, Read, Update, and Delete capabilities for players, including their personal details and tournament statistics.
+- Group-stage fixtures and historical results.
+- Dynamically calculated group standings for groups A–H.
+- Knockout bracket from the round of 16 through the final, including the third-place match.
+- Player statistics covering goals, assists, cards and saves.
+- Player and national team search.
+- Aggregate tournament insights, including top scorers and team scoring totals.
 
-## Technology Stack
+### Administration
 
--   **Backend**: PHP
--   **Database**: MySQL
--   **Frontend**: HTML, CSS, JavaScript
--   **Frameworks/Libraries**: Bootstrap
+- Session-based login with user and administrator destinations.
+- Create, list, edit and delete player records.
+- Manage player statistics associated with player profiles.
+- Create, list, edit and delete team manager records.
 
-## Database Structure
+The application includes administrative interfaces, but its current authentication and authorization implementation requires security hardening before any public deployment.
 
-The `WorldCup2022_db` directory contains SQL dump files to set up the entire database. The schema is organized into the following tables:
+## Technology stack
 
--   `login`: Stores user and admin credentials.
--   `manager`: Contains information about team managers.
--   `team`: Details for each of the 32 national teams.
--   `players`: Information for every player in the tournament.
--   `stadium`: Data on the stadiums used in the tournament.
--   `matchstats`: Records the result and statistics for every match played.
--   `statsoverall`: Aggregates the overall statistics (goals, assists, cards, saves) for each player.
+| Layer | Technology |
+|---|---|
+| Backend and rendering | PHP |
+| Database | MySQL 8, InnoDB |
+| Database access | MySQLi |
+| Frontend | HTML, CSS, JavaScript |
+| UI | Bootstrap |
+| Session management | PHP sessions |
 
-## Setup and Installation
+## Architecture
 
-To run this project locally, follow these steps:
+```mermaid
+flowchart LR
+    A[Browser] --> B[PHP pages and forms]
+    B --> C[PHP session handling]
+    B --> D[SQL queries via MySQLi]
+    D --> E[(MySQL)]
+    E --> B
+    B --> F[HTML tables and tournament views]
+    F --> A
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/claudio1009/football-world-cup-2022-app.git
-    ```
+The application follows a server-rendered, page-oriented architecture. PHP scripts handle database queries, business logic and HTML rendering directly. It does not expose a separate REST API.
 
-2.  **Set up a local server environment:**
-    -   Install a local server environment like XAMPP, WAMP, or MAMP which includes Apache, PHP, and MySQL.
+## Database design
 
-3.  **Create the database:**
-    -   Open your MySQL database management tool (like phpMyAdmin).
-    -   Create a new database and name it `worldcup`.
+```mermaid
+erDiagram
+    MANAGER ||--o{ TEAM : manages
+    TEAM ||--o{ PLAYERS : includes
+    TEAM ||--o{ MATCHSTATS : home_team
+    TEAM ||--o{ MATCHSTATS : away_team
+    STADIUM ||--o{ MATCHSTATS : hosts
+    PLAYERS ||--o{ STATSOVERALL : records
+```
 
-4.  **Import the database schema and data:**
-    -   Select the `worldcup` database.
-    -   Import all the `.sql` files located in the `WorldCup2022_db` directory.
+The diagram represents the conceptual relationships defined by foreign keys; nullable foreign-key columns allow optional references. The independent login table stores account information.
 
-5.  **Configure database connection:**
-    -   The PHP files connect to the database using the following credentials:
-        -   **Host**: `localhost`
-        -   **User**: `root`
-        -   **Password**: `123456`
-        -   **Database**: `worldcup`
-    -   If your local MySQL setup uses a different username or password, you will need to update these credentials at the top of each `.php` file.
+| Table | Responsibility |
+|---|---|
+| login | Account credentials and user type |
+| manager | Manager identity, age and nationality |
+| team | National team metadata, group, ranking and manager reference |
+| players | Player identity, shirt number, position, club and team reference |
+| stadium | Venue name, city and capacity |
+| matchstats | Teams, tournament round, result, goals, cards, date and venue |
+| statsoverall | Player goals, assists, cards and saves |
 
-6.  **Run the application:**
-    -   Move the `Main app` folder into your web server's root directory (e.g., `htdocs` in XAMPP).
-    -   Open your web browser and navigate to `http://localhost/Main app/index.php`.
+The schema uses primary keys, foreign keys and indexes on relationship columns. SQL dumps contain both schema definitions and sample historical data.
 
-## Usage
+## SQL analytics
 
-### User Access
--   **Username**: `claudiu`
--   **Password**: `cesafaci`
+### Group standings
 
-Navigate through the tabs to view matches, results, and group standings. Use the links in the "Clasamente" (Standings) section to access player statistics and the tournament bracket.
+The group-stage view uses correlated subqueries and conditional aggregation to derive matches played, wins, draws, losses, goals scored, goals conceded and points from match records.
 
-### Admin Access
--   **Username**: `admin`
--   **Password**: `admin`
+The points calculation assigns three points for a win, one for a draw and zero for a loss.
 
-After logging in as an admin, you will have access to the Admin Panel where you can add, edit, or delete player and manager records.
+### Player statistics
+
+Player and team information is joined with aggregate statistics to display scoring contributions, disciplinary records and goalkeeper statistics.
+
+### Tournament insights
+
+SQL aggregation and nested queries are used to calculate team scoring totals, identify teams with high card counts and retrieve leading goal scorers.
+
+The current match schema stores aggregate card counts rather than separate home and away card counts; team disciplinary attribution therefore needs further validation.
+
+## Application pages
+
+| File | Purpose |
+|---|---|
+| index.php | Login page |
+| userhome.php | Group-stage results and standings |
+| bracket.php | Knockout results and bracket |
+| marcatori.php | Player statistics |
+| cautare.php | Player and team search |
+| informatii.php | Tournament insights |
+| adminpage.php | Administration navigation |
+| players.php | Player listing |
+| manager.php | Manager listing |
+| createplayers.php / updateplayer.php / deleteplayer.php | Player management |
+| createmanager.php / update.php / delete.php | Manager management |
+| logout.php | Session termination |
+
+## Repository structure
+
+```text
+Football-World-Cup-2022-App/
+├── Main app/
+│   ├── index.php
+│   ├── userhome.php
+│   ├── bracket.php
+│   ├── marcatori.php
+│   ├── cautare.php
+│   ├── informatii.php
+│   ├── adminpage.php
+│   ├── players.php
+│   ├── manager.php
+│   ├── createplayers.php
+│   ├── updateplayer.php
+│   ├── deleteplayer.php
+│   ├── createmanager.php
+│   ├── update.php
+│   ├── delete.php
+│   ├── logout.php
+│   ├── image/
+│   ├── js/
+│   └── styles/
+├── WorldCup2022_db/
+│   ├── worldcup_login.sql
+│   ├── worldcup_manager.sql
+│   ├── worldcup_team.sql
+│   ├── worldcup_players.sql
+│   ├── worldcup_stadium.sql
+│   ├── worldcup_matchstats.sql
+│   └── worldcup_statsoverall.sql
+└── README.md
+```
+
+## Local setup
+
+### Prerequisites
+
+- PHP with the MySQLi extension.
+- MySQL 8 (the dumps use utf8mb4_0900_ai_ci collation).
+- A local PHP web server, or Apache with PHP configured.
+- Git.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Claudio1009/Football-World-Cup-2022-App.git
+cd Football-World-Cup-2022-App
+```
+
+### 2. Initialize the database
+
+Create a local database named worldcup.
+
+```sql
+CREATE DATABASE worldcup CHARACTER SET utf8mb4;
+```
+
+Import the SQL files from WorldCup2022_db in dependency order:
+
+1. worldcup_manager.sql
+2. worldcup_team.sql
+3. worldcup_players.sql
+4. worldcup_stadium.sql
+5. worldcup_matchstats.sql
+6. worldcup_statsoverall.sql
+7. worldcup_login.sql
+
+Use MySQL Workbench, phpMyAdmin or the MySQL CLI. The login dump contains legacy demonstration credentials; use only disposable local accounts and never reuse real passwords.
+
+### 3. Configure database access
+
+The existing PHP pages contain inline MySQL connection settings. Update them to match a dedicated local database account with the necessary permissions.
+
+Do not expose the database or application publicly, use privileged database accounts unnecessarily, or commit real credentials. Centralizing configuration and migrating to password hashing are recommended improvements.
+
+### 4. Start the application
+
+From the repository root, run PHP's development server:
+
+```bash
+php -S 127.0.0.1:8000 -t "Main app"
+```
+
+Open http://127.0.0.1:8000/index.php.
+
+Alternatively, serve the Main app directory through a locally configured Apache installation.
+
+## Validation and testing
+
+The repository includes SQL seed data for manual verification. Suggested checks:
+
+- Verify imported entity counts against the dataset table.
+- Compare group standings with the stored match results.
+- Check player and team search results.
+- Exercise player and manager CRUD on disposable data.
+- Verify session handling and role restrictions on each administrative operation.
+
+No automated test suite or successful execution is asserted.
+
+## Limitations and roadmap
+
+- Replace interpolated SQL queries with prepared statements.
+- Replace plaintext password storage and comparison with password hashing and verification.
+- Centralize database configuration and remove committed credentials.
+- Enforce administrator authorization on every administrative action.
+- Protect state-changing requests against CSRF and replace GET-based deletion links.
+- Use transactions for player and statistics updates.
+- Avoid database writes during standings rendering.
+- Validate tournament tie-breaking and team-level card attribution.
+- Improve foreign-key-aware deletion behavior and input validation.
+- Separate data access, business logic and presentation layers.
+- Add automated tests and reproducible local deployment.
+
+These are proposed improvements, not implemented features. The project should be treated as a local educational prototype.
+
+## Author
+
+Claudiu Marius Ciupitu — [GitHub](https://github.com/Claudio1009)
